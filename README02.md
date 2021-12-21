@@ -1,3 +1,12 @@
+## create-react-app
+
++ `$ npm run build`を実行してみる<br>
+
++ `$npm start`を実行してみる<br>
+
++ `src/App.js`を編集してみる<br>
+
+```
 import logo from './logo.svg';
 import './App.css';
 
@@ -23,3 +32,4 @@ function App() {
 }
 
 export default App;
+```
