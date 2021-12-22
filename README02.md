@@ -386,3 +386,233 @@ const Article = (props) => {
 
 export default Article
 ```
+
+## 05 コンポーネントの状態 stateの設定と取得と変更<br>
+
+#### 状態(state)とは
+
++ コンポーネント内で管理する変数<br>
+
++ ローカルステートと呼ばれる<br>
+
++ propsとして子コンポーネントに渡せる<br>
+
+#### なぜstateを使うのか
+
++ render()内では`値を変更してはいけない`<br>
+
++ setState内で値を変更する<br>
+
++ stateの変更 = 再レンダーのきっかけ -> `ページリロードせずに表示を切り替えられる`<br>
+
+### stateの設定方法
+
++ Class Componentは前提<br>
+
++ constructor()内で宣言<br>
+
++ オブジェクト型で記述<br>
+
+`src/Blog.jsx`<br>
+
+```
+class Blog extends React.Components {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isPublished: false
+    }
+  }
+  // 中略
+}
+
+export default Blog
+```
+
++ 実践 <br>
+
+`src/Blog.jsx`<br>
+
+```
+import React, { Component, Fragment } from 'react'
+import Article from './Article'
+
+class Blog extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      isPublished: false
+    }
+  }
+  render() {
+    return (
+      <Fragment>
+        <Article title={'Reactの使い方'} />
+      </Fragment>
+    )
+  }
+}
+
+export default Blog
+```
+
+### stateの取得
+
++ 同コンポーネント内ならthis.state.key名で取得できる<br>
+
++ 子コンポーネントで参照したい場合はpropsとして渡す<br>
+
++ `例`<br>
+
+`src/Blog.jsx`<br>
+
+```
+render() {
+  return (
+    <Article
+      title="Reactの基本知識"
+      isPublished={this.state.isPublished}
+    />
+  )
+}
+```
+
++ `実践`<br>
+
++ `src/Blog.jsx`
+
+```
+import React, { Component, Fragment } from 'react'
+import Article from './Article'
+
+class Blog extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      isPublished: false,
+    }
+  }
+  render() {
+    return (
+      <Fragment>
+        <Article title={'Reactの使い方'} isPublished={this.state.isPublished} />
+      </Fragment>
+    )
+  }
+}
+
+export default Blog
+```
+
++ `src/Article.jsx`
+
+```
+import React, { Component } from 'react'
+
+class Article extends Component {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    const {title, isPublished} = this.props;
+    return (
+      <div>
+        <h2>{title}</h2>
+        <label htmlFor='check'>公開状態:</label>
+        <input type="checkbox" checked={isPublished} id="check" />
+      </div>
+    )
+  }
+}
+
+export default Article
+```
+
+### stateの変更方法
+
++ setState()を使う<br>
+
++ 関数にラップするのが一般的<br>
+
++ setState()内に記述されたstateのみを変更<br>
+
+`例`<br>
+
+`src/Blog.jsx`<br>
+
+```
+// 公開状態を反転させる関数を定義する
+togglePublished = () => {
+  this.setState({
+    isPublished: !this.state.isPublished
+  })
+}
+```
+
++ `実践`<br>
+
+`src/Blog.jsx`<br>
+
+```
+import React, { Component, Fragment } from 'react'
+import Article from './Article'
+
+class Blog extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      isPublished: false,
+      order: 1,
+    }
+  }
+
+  // 公開状態を反転させる関数
+  togglePublished = () => {
+    this.setState({
+      isPublished: !this.state.isPublished,
+    })
+  }
+  render() {
+    return (
+      <Fragment>
+        <Article
+          title={'Reactの使い方'}
+          isPublished={this.state.isPublished}
+          toggle={() => this.togglePublished()}
+        />
+      </Fragment>
+    )
+  }
+}
+
+export default Blog
+```
+
++ `src/Article.jsx`を編集<br>
+
+```
+import React, { Component } from 'react'
+
+class Article extends Component {
+  constructor(props) {
+    super(props)
+  }
+  render() {
+    const { title, isPublished, toggle } = this.props
+    return (
+      <div>
+        <h2>{title}</h2>
+        <label htmlFor="check">公開状態:</label>
+        <input
+          type="checkbox"
+          checked={isPublished}
+          id="check"
+          onClick={() => toggle()}
+        />
+      </div>
+    )
+  }
+}
+
+export default Article
+```
