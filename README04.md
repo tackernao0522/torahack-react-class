@@ -420,3 +420,182 @@ const Article = memo((props) => {
 
 export default Article
 ```
+
+## 09 React Hools 関数コンポーネントでもライフサイクルを扱う
+
+#### useEffect()のメリット
+
++ ライフサイクリメソッドを代替できる<br>
+
+* Functional Componentsでライフサイクルを使える<br>
+
++ コードをまとめられる ◯ 機能ベース (何をやっているのか) × 時の流れベース (ライフサイクルのメソッド毎)<br>
+
+#### useEffect()の仕組み
+
++ レンダー毎にuseEffect()内の処理が走る<br>
+
++ 代替できるメソッドは以下
+
+1. `componentDidMount()`<br>
+
+2. `componentDidUpdate()`<br>
+
+3. `componentWillUnmount()`<br>
+
+#### パターン①レンダー毎
+
+```
+useEffect(() => {
+  console.log('Render!')
+  return () => {
+    console.log('Unmounting!')
+  }
+})
+```
+
++ 基本の形<br>
+
++ useEffect()内にCallback関数を書く<br>
+
++ Callbackはレンダー毎に呼ばれる<br>
+
++ returnするCallback関数はアンマウント時に呼ばれる。(クリーンアップ関数)<br>
+
+#### パターン②マウント時のみ
+
+```
+useEffect(() => {
+  console.log('Render!')
+}, [])
+```
+
++ 第二引数の配列内の値を`前回レンダーと今回レンダーで比較`->変更があればCallback関数を実行<br>
+
++ 第二引数に空の配列を渡すと最初の1回（マウント時）のみ実行される<br>
+
+#### パターン③マウント&アンマウント
+
+```
+useEffect(() => {
+  console.log('Render!')
+  return () => {
+    console.log('Unmounting!)
+  }
+}, [])
+```
+
++ ①と②の複合形<br>
+
++ 通常のCallbackはマウント時のみ<br>
+
++ アンマウント時はreturn内のクリーンアップ関数が実行される<br>
+
+#### パターン④特定のレンダー時
+
+```
+const [limit, release] = useState(true);
+
+useEffect(() => {
+  console.log('Render!')
+}, [limit])
+```
+
++ マウント時に実行される<br>
+
++ limitの値が変わった時に実行される<br>
+
++ 上記の例で言えば、limitの値が`true -> false`になった時<br>
+
+#### useEffect実践
+
++ `src/Article.jsx`を編集<br>
+
+```
+import React, { memo, useState } from 'react'
+import LikeButton from './LikeButton'
+
+const Article = memo((props) => {
+  const { title } = props
+  const [isPublished, togglePublished] = useState(false)
+
+  return (
+    <div>
+      <h2>{title}</h2>
+      <label htmlFor="check">公開状態:</label>
+      <input
+        type="checkbox"
+        checked={isPublished}
+        id="check"
+        onClick={() => togglePublished(!isPublished)}
+      />
+      <LikeButton /> // 編集
+    </div>
+  )
+})
+
+export default Article
+```
+
+`パターン①`<br>
+
++ `src/LikeButton.jsx`を編集<br>
+
+```
+import React, { useState, useEffect, memo } from 'react'
+
+const LikeButton = memo(() => {
+  const [count, counter] = useState(0)
+
+  const countUp = () => {
+    counter(count + 1)
+  }
+
+  useEffect(() => {
+    document.getElementById('counter').addEventListener('click', countUp)
+    return () => {
+      document.getElementById('counter').removeEventListener('click', countUp)
+    }
+  })
+
+  return <button id={'counter'}>いいね数: {count}</button>
+})
+
+export default LikeButton
+```
+
++ `パターン②`<br>
+
++ `src/LikeButton.jsx`を編集<br>
+
+```
+import React, { useState, useEffect, memo } from 'react'
+
+const LikeButton = memo(() => {
+  const [count, counter] = useState(0)
+  const [limit, release] = useState(true)
+
+  const countUp = () => {
+    counter(count + 1)
+  }
+
+  useEffect(() => {
+    document.getElementById('counter').addEventListener('click', countUp)
+    if (count >= 10) {
+      counter(0)
+    }
+    return () => {
+      document.getElementById('counter').removeEventListener('click', countUp)
+    }
+  }, [limit])
+
+  return (
+    <>
+      <button id={'counter'}>いいね数: {count}</button>
+      <button onClick={() => release(!limit)}>もっといいねしたい</button>
+    </>
+  )
+})
+
+export default LikeButton
+```
