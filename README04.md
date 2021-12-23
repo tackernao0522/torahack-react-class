@@ -305,3 +305,118 @@ class Blog extends Component {
 
 export default Blog
 ```
+
+## 08 React Hoolsでstateを使う(関数コンポーネントでもステートを扱う)
+
+### フック(hook)とは
+
++ クラスの機能（stateやライフサイクル）をFunctional Componentでも使える<br>
+
++ React 16.8から導入(2020/2に正式リリース)<br>
+
++ 100%後方互換=>小さく導入できる<br>
+
+### useState()を使おう
+
++ ステートフックと呼ばれる<br>
+
++ クラスコンポーネントでいう this.stateとthis.setState()を代替<br>
+
++ 複数のstateを扱うときはstate毎に宣言<br>
+
+### useState()の使い方
+
+1. useState関数をインポート<br>
+
+```
+import React, {useState} from 'react';
+```
+
+2. 宣言する<br>
+
+```
+//      state変数名   state変更関数名      state初期値
+const [isPblished, togglePublished] = useState(false);
+```
+
+3. JSX内で使う<br>
+
+```
+<input /** 中略 */ onClick={() => togglePublished(!isPublished)} />
+```
+
+### useState実践
+
++ `src/Blog.jsx`を編集<br>
+
+```
+import React, { Fragment } from 'react'
+import Article from './Article'
+import Foge from './components/Foge'
+import * as FooBar from './components/FooBar'
+
+const Blog = () => {
+  // componentDidMount() {
+  //   // ボタンがクリックされたらいいねをカウントアップする
+  //   document.getElementById('counter').addEventListener('click', this.countUp)
+  // }
+
+  // componentDidUpdate() {
+  //   // いいねカウントが10になったら0にする
+  //   if (this.state.count >= 10) {
+  //     this.setState({ count: 0 })
+  //   }
+  // }
+
+  // componentWillUnmount() {
+  //   document.getElementById('counter').removeEventListener('click', this.countUp)
+  // }
+
+  // countUp = () => {
+  //   this.setState({
+  //     count: this.state.count + 1,
+  //   })
+  // }
+  return (
+    <Fragment>
+      <Article
+        title={'Reactの使い方'}
+        // count={count}
+      />
+      <FooBar.Foo />
+      <FooBar.Bar />
+      <Foge />
+      <button onClick={() => FooBar.Open()}>Click</button>
+    </Fragment>
+  )
+}
+
+export default Blog
+```
+
++ `src/Article.jsx`を編集<br>
+
+```
+import React, { memo, useState } from 'react'
+
+const Article = memo((props) => {
+  const { title } = props
+  const [isPublished, togglePublished] = useState(false)
+
+  return (
+    <div>
+      <h2>{title}</h2>
+      <label htmlFor="check">公開状態:</label>
+      <input
+        type="checkbox"
+        checked={isPublished}
+        id="check"
+        onClick={() => togglePublished(!isPublished)}
+      />
+      {/* <LikeButton count={count} /> */}
+    </div>
+  )
+})
+
+export default Article
+```
