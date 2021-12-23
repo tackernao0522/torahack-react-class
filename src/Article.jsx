@@ -1,4 +1,5 @@
 import React, { memo, useState } from 'react'
+import LikeButton from './LikeButton'
 
 const Article = memo((props) => {
   const { title } = props
@@ -14,7 +15,7 @@ const Article = memo((props) => {
         id="check"
         onClick={() => togglePublished(!isPublished)}
       />
-      {/* <LikeButton count={count} /> */}
+      <LikeButton />
     </div>
   )
 })
